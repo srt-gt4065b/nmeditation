@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"index.html HTTP: %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"visual.html HTTP: %{http_code}\\\\n\" http://localhost:3000/visual.html)",
+      "Bash(curl -s -o /dev/null -w \"meditation.json HTTP: %{http_code}\\\\n\" http://localhost:3000/data/meditation.json)",
+      "Bash(curl -s -I http://localhost:3000/visual.html)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/visual)",
+      "Bash(curl -s http://localhost:3000/visual)"
+    ]
+  }
+}

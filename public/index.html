@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>매일의 묵상 | Daily Meditation Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F7F3EC;
+            --parchment: #EDE5D4;
+            --stone: #2C2416;
+            --gold: #B8783A;
+            --gold-light: #D49B6A;
+            --sage: #6A8F82;
+            --muted: #8B7D6B;
+            --border: #D5C9B5;
+            --white: #FDFAF5;
+            --shadow: rgba(44, 36, 22, 0.12);
+            --ff-display: 'Playfair Display', 'Noto Serif KR', serif;
+            --ff-body: 'Noto Serif KR', serif;
+            --ff-ui: 'Noto Sans KR', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--cream);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            font-family: var(--ff-body);
+            color: var(--stone);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ── */
+        header {
+            text-align: center;
+            padding: 2rem 1rem 1.2rem;
+            position: relative;
+        }
+
+        .header-ornament {
+            font-family: var(--ff-display);
+            font-style: italic;
+            color: var(--gold);
+            font-size: 0.85rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        h1 {
+            font-family: var(--ff-display);
+            font-size: clamp(1.6rem, 5vw, 2.8rem);
+            font-weight: 400;
+            color: var(--stone);
+            line-height: 1.2;
+        }
+
+        .header-sub {
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 0.4rem;
+            letter-spacing: 0.05em;
+        }
+
+        .header-divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            margin: 1rem auto 0;
+        }
+
+        /* ── Visual Link Button ── */
+        .visual-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.8rem;
+            padding: 0.4rem 1rem;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #fff;
+            font-family: var(--ff-ui);
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(184,120,58,0.3);
+        }
+        .visual-link:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(184,120,58,0.4); }
+
+        /* ── Month Nav ── */
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            margin: 1.4rem 0 1.6rem;
+        }
+
+        .month-nav button {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .month-nav button:hover { border-color: var(--gold); color: var(--gold); background: rgba(184,120,58,0.07); }
+
+        .month-title {
+            font-family: var(--ff-display);
+            font-size: 1.35rem;
+            font-weight: 600;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        /* ── Calendar ── */
+        .calendar-container {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 0.75rem 5rem;
+        }
+
+        .weekday-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-bottom: 3px;
+        }
+
+        .weekday-header div {
+            text-align: center;
+            font-family: var(--ff-ui);
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            padding: 0.35rem 0;
+        }
+
+        .weekday-header div:first-child { color: #C45A5A; }
+        .weekday-header div:last-child  { color: var(--sage); }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 5px;
+            touch-action: manipulation;
+        }
+
+        .day-cell:active { transform: scale(0.96); }
+
+        .day-cell:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 14px var(--shadow);
+            z-index: 1;
+        }
+
+        .day-cell.empty { background: transparent; border-color: transparent; cursor: default; }
+        .day-cell.empty:hover { transform: none; box-shadow: none; }
+
+        .day-cell.today {
+            border-color: var(--gold);
+            background: linear-gradient(145deg, #FDF6ED, var(--white));
+        }
+
+        .day-cell.has-content {
+            background: linear-gradient(145deg, #FBF5EA, var(--white));
+        }
+
+        .day-number {
+            font-family: var(--ff-ui);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--stone);
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .day-cell.sunday .day-number  { color: #C45A5A; }
+        .day-cell.saturday .day-number { color: var(--sage); }
+
+        .cell-preview {
+            width: 100%;
+            flex: 1;
+            margin-top: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 3px;
+        }
+
+        .cell-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+        .cell-icon { font-size: 1rem; opacity: 0.65; }
+
+        .cell-dots {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .cell-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--gold); }
+
+        .cell-title {
+            width: 100%;
+            font-family: var(--ff-display);
+            font-style: italic;
+            font-size: 0.58rem;
+            color: var(--stone);
+            opacity: 0.82;
+            line-height: 1.3;
+            margin-top: 2px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: keep-all;
+        }
+
+        /* ── Scripture badge on cell ── */
+        .cell-scripture {
+            width: 100%;
+            font-family: var(--ff-ui);
+            font-size: 0.5rem;
+            color: var(--sage);
+            opacity: 0.9;
+            margin-top: 1px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* ── Modal Overlay ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(44,36,22,0.52);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.28s;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        /* ── Day Modal ── */
+        .modal {
+            background: var(--white);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 24px 64px rgba(44,36,22,0.28);
+            transform: translateY(18px) scale(0.98);
+            transition: transform 0.28s;
+        }
+
+        .modal-overlay.active .modal { transform: translateY(0) scale(1); }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 1.2rem 1.3rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 10;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-date-title {
+            font-family: var(--ff-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .modal-date-sub {
+            font-family: var(--ff-ui);
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.15rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            margin-top: -0.2rem;
+            border-radius: 6px;
+            transition: background 0.15s;
+            min-width: 36px;
+            min-height: 36px;
+            touch-action: manipulation;
+        }
+
+        .modal-close:hover { background: var(--parchment); }
+
+        .modal-body { padding: 1.2rem 1.3rem 1.4rem; }
+
+        /* ── Scripture Block in Modal ── */
+        .scripture-block {
+            background: linear-gradient(135deg, #FBF5EA, #F7F0E6);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 8px 8px 0;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .scripture-ref {
+            font-family: var(--ff-ui);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
+        }
+
+        .scripture-text {
+            font-family: var(--ff-body);
+            font-size: 0.9rem;
+            color: var(--stone);
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        /* ── Summary Block in Modal ── */
+        .summary-block {
+            background: var(--parchment);
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-label {
+            font-family: var(--ff-ui);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .summary-text {
+            font-family: var(--ff-body);
+            font-size: 0.88rem;
+            color: var(--stone);
+            line-height: 1.75;
+        }
+
+        /* ── Key Themes ── */
+        .themes-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-tag {
+            font-family: var(--ff-ui);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--sage);
+            background: rgba(106,143,130,0.1);
+            border: 1px solid rgba(106,143,130,0.25);
+            border-radius: 12px;
+            padding: 0.25rem 0.65rem;
+        }
+
+        /* ── Visual Page Link in Modal ── */
+        .visual-cta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, var(--stone), #3d3025);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .visual-cta:hover { transform: translateY(-1px); }
+
+        .visual-cta-text {
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .visual-cta-sub {
+            font-family: var(--ff-ui);
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 0.1rem;
+        }
+
+        .visual-cta-arrow {
+            color: var(--gold-light);
+            font-size: 1.1rem;
+        }
+
+        /* ── Content Items ── */
+        .content-items { display: flex; flex-direction: column; gap: 1rem; }
+
+        .content-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .content-item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.8rem;
+            background: var(--parchment);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .content-item-title {
+            font-family: var(--ff-ui);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--stone);
+            flex: 1;
+        }
+
+        .type-badge {
+            font-family: var(--ff-ui);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            letter-spacing: 0.03em;
+        }
+
+        .type-image    { background: #E8F4ED; color: #2D6A4F; }
+        .type-pdf      { background: #FDECEA; color: #B71C1C; }
+        .type-ppt      { background: #FFF3E0; color: #E65100; }
+        .type-video    { background: #E8EAF6; color: #283593; }
+        .type-audio    { background: #F3E5F5; color: #6A1B9A; }
+        .type-notebookLM { background: #E6F0FF; color: #3A66B5; }
+
+        .content-viewer { padding: 0.8rem; }
+
+        .content-viewer img { width: 100%; border-radius: 6px; display: block; }
+
+        .content-viewer iframe {
+            width: 100%;
+            height: 340px;
+            border: none;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .content-viewer video { width: 100%; border-radius: 6px; }
+
+        .audio-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0;
+        }
+
+        .audio-wrap audio { flex: 1; }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .no-content {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            font-family: var(--ff-ui);
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* ── Comments ── */
+        .comments-section { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem; }
+
+        .comments-heading {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--stone);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comment-count {
+            background: var(--gold);
+            color: #fff;
+            font-size: 0.72rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 10px;
+        }
+
+        .comment-list {
+            max-height: 260px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-item {
+            background: var(--parchment);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+        }
+
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .comment-name { font-family: var(--ff-ui); font-size: 0.78rem; font-weight: 700; color: var(--gold); }
+        .comment-time { font-family: var(--ff-ui); font-size: 0.7rem; color: var(--muted); }
+        .comment-text { font-family: var(--ff-body); font-size: 0.85rem; line-height: 1.6; color: var(--stone); }
+
+        .comment-form { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .comment-row { display: flex; gap: 0.5rem; }
+
+        .comment-form input,
+        .comment-form textarea {
+            font-family: var(--ff-body);
+            font-size: 0.88rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            background: var(--white);
+            color: var(--stone);
+            outline: none;
+            transition: border-color 0.2s;
+            resize: none;
+            min-height: 44px;
+        }
+
+        .comment-form input { flex: 1; }
+        .comment-form textarea { width: 100%; }
+        .comment-form input:focus,
+        .comment-form textarea:focus { border-color: var(--gold); }
+
+        .btn-gold {
+            background: var(--gold);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-family: var(--ff-ui);
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .btn-gold:hover { background: var(--stone); }
+
+        /* ── Admin Modal ── */
+        .admin-modal {
+            background: var(--white);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 540px;
+            max-height: 92vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 24px 64px rgba(44,36,22,0.28);
+            transform: translateY(18px) scale(0.98);
+            transition: transform 0.28s;
+        }
+
+        .modal-overlay.active .admin-modal { transform: translateY(0) scale(1); }
+
+        .admin-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.8rem;
+            background: var(--parchment);
+            border-radius: 7px;
+            font-family: var(--ff-ui);
+            font-size: 0.81rem;
+        }
+
+        .admin-item span.item-title {
+            flex: 1;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #C45A5A;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.3rem 0.4rem;
+            border-radius: 4px;
+            transition: background 0.15s;
+            min-width: 36px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .btn-delete:hover { background: #FEE8E8; }
+
+        .admin-form-box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            margin-top: 0.8rem;
+        }
+
+        /* ── NotebookLM Quick Import Box ── */
+        .nb-import-box {
+            border: 2px dashed var(--gold-light);
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            margin-top: 0.8rem;
+            background: linear-gradient(135deg, #FFFBF5, #FEF5E8);
+        }
+
+        .nb-import-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .nb-import-title {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .nb-import-badge {
+            font-family: var(--ff-ui);
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: var(--gold);
+            color: #fff;
+            padding: 0.15rem 0.45rem;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .form-section-title {
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--stone);
+            margin-bottom: 0.8rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group label {
+            font-family: var(--ff-ui);
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.03em;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            font-family: var(--ff-ui);
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 0.6rem 0.8rem;
+            background: var(--white);
+            color: var(--stone);
+            outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+        }
+
+        .form-group textarea { min-height: 80px; resize: vertical; }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7D6B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            padding-right: 2.5rem;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus { border-color: var(--gold); }
+
+        .btn-primary {
+            font-family: var(--ff-ui);
+            font-size: 0.88rem;
+            font-weight: 600;
+            background: var(--gold);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.2rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            margin-top: 0.2rem;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+
+        .btn-primary:hover  { background: var(--stone); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-nb-import {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #3A66B5, #5580CC);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: 0.2rem;
+            min-height: 48px;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-nb-import:hover { background: linear-gradient(135deg, #2D5099, #3A66B5); }
+
+        .btn-outline {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            background: none;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+
+        .btn-outline:hover { border-color: var(--stone); color: var(--stone); }
+
+        /* Login */
+        .login-wrap { padding: 2rem 1.5rem; text-align: center; }
+
+        .login-wrap h3 {
+            font-family: var(--ff-display);
+            font-size: 1.2rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .login-wrap p {
+            font-family: var(--ff-ui);
+            font-size: 0.83rem;
+            color: var(--muted);
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        .login-inner { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        /* ── Admin Tabs ── */
+        .admin-tabs {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+            background: var(--parchment);
+            border-radius: 8px;
+            padding: 0.3rem;
+        }
+
+        .admin-tab {
+            flex: 1;
+            font-family: var(--ff-ui);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.5rem 0.3rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+            color: var(--muted);
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .admin-tab.active {
+            background: var(--white);
+            color: var(--stone);
+            box-shadow: 0 1px 4px var(--shadow);
+        }
+
+        .admin-tab-panel { display: none; }
+        .admin-tab-panel.active { display: block; }
+
+        /* ── Admin FAB ── */
+        .admin-fab {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--stone);
+            color: #fff;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(44,36,22,0.3);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, background 0.2s;
+            touch-action: manipulation;
+        }
+
+        .admin-fab:hover { background: var(--gold); transform: scale(1.08); }
+
+        /* ── Visual FAB ── */
+        .visual-fab {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: #fff;
+            font-size: 1.3rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(184,120,58,0.35);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            text-decoration: none;
+            touch-action: manipulation;
+        }
+
+        .visual-fab:hover { transform: scale(1.08); }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--stone);
+            color: #fff;
+            padding: 0.6rem 1.4rem;
+            border-radius: 20px;
+            font-family: var(--ff-ui);
+            font-size: 0.83rem;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 200;
+            white-space: nowrap;
+        }
+
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 480px) {
+            .month-nav { gap: 0.8rem; }
+            .admin-modal { max-height: 95vh; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-ornament">✦ Daily Meditation ✦</div>
+        <h1>매일의 묵상</h1>
+        <p class="header-sub">묵상 콘텐츠를 함께 나누어요</p>
+        <div class="header-divider"></div>
+        <a href="visual.html" class="visual-link">✨ 인포그래픽 & 슬라이드 보기</a>
+    </header>
+
+    <div class="calendar-container">
+        <div class="month-nav">
+            <button id="prevMonth">◀</button>
+            <div class="month-title" id="monthTitle">2026년 3월</div>
+            <button id="nextMonth">▶</button>
+        </div>
+
+        <div class="weekday-header">
+            <div>일</div><div>월</div><div>화</div><div>수</div>
+            <div>목</div><div>금</div><div>토</div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Day Modal -->
+    <div class="modal-overlay" id="dayModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-date-title" id="modalDateTitle">3월 31일</div>
+                    <div class="modal-date-sub" id="modalDateSub">화요일</div>
+                </div>
+                <button class="modal-close" onclick="window.closeModal('dayModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="scriptureArea"></div>
+                <div id="summaryArea"></div>
+                <div id="themesArea"></div>
+                <div id="visualCtaArea"></div>
+                <div class="content-items" id="contentItems">
+                    <div class="loading"><div class="spinner"></div> 불러오는 중...</div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-heading">
+                        🙏 묵상 나눔
+                        <span class="comment-count" id="commentCount">0</span>
+                    </div>
+                    <div class="comment-list" id="commentList"></div>
+                    <form class="comment-form" onsubmit="event.preventDefault(); window.submitComment();">
+                        <div class="comment-row">
+                            <input type="text" id="commentName" placeholder="이름" maxlength="15" autocomplete="name">
+                            <button type="submit" class="btn-gold">등록</button>
+                        </div>
+                        <textarea id="commentText" placeholder="묵상을 나누어요..." maxlength="280" rows="3"></textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="admin-modal">
+            <div class="modal-header">
+                <div id="adminDateLabel">날짜: 2026-03-31</div>
+                <button class="modal-close" onclick="window.closeModal('adminModal')">✕</button>
+            </div>
+            <div class="modal-body" id="adminBody"></div>
+        </div>
+    </div>
+
+    <a href="visual.html" class="visual-fab" title="인포그래픽 보기">✨</a>
+    <button class="admin-fab" onclick="window.openAdmin()">⚙️</button>
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCc4s19vYIryTLdr5HWslTOKBQ2PoyVEYQ",
+            authDomain: "meditation-1c609.firebaseapp.com",
+            projectId: "meditation-1c609",
+            storageBucket: "meditation-1c609.firebasestorage.app",
+            messagingSenderId: "252065688168",
+            appId: "1:252065688168:web:2dbef63323a8dc4864a9dd",
+            measurementId: "G-263R8S1JQT"
+        };
+
+        const ADMIN_PASSWORD = 'wky2026';
+        const NOTEBOOKLM_URL = 'https://notebooklm.google.com/notebook/53e7aa7c-e622-4bb5-a856-6d736dbd5ddd';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let curYear = new Date().getFullYear();
+        let curMonth = new Date().getMonth();
+        let curDate = '';
+        let cache = {};
+        let unsubCmt = null;
+
+        // ════════════════════════════════════════════════
+        // CALENDAR
+        // ════════════════════════════════════════════════
+        window.renderCalendar = function() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('monthTitle');
+            const MN = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+            title.textContent = `${curYear}년 ${MN[curMonth]}`;
+
+            const firstDay = new Date(curYear, curMonth, 1).getDay();
+            const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+            const today = new Date();
+
+            grid.innerHTML = '';
+
+            for (let i = 0; i < firstDay; i++) {
+                const e = document.createElement('div');
+                e.className = 'day-cell empty';
+                grid.appendChild(e);
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const ds = `${curYear}-${pad(curMonth+1)}-${pad(d)}`;
+                const dow = new Date(curYear, curMonth, d).getDay();
+                const isToday = today.getFullYear()===curYear && today.getMonth()===curMonth && today.getDate()===d;
+
+                const cell = document.createElement('div');
+                cell.className = ['day-cell', isToday?'today':'', dow===0?'sunday':'', dow===6?'saturday':'', cache[ds]?'has-content':''].filter(Boolean).join(' ');
+                cell.dataset.date = ds;
+
+                const num = document.createElement('div');
+                num.className = 'day-number';
+                num.textContent = d;
+                cell.appendChild(num);
+
+                if (cache[ds]) {
+                    const data = cache[ds];
+                    const items = data.items || [];
+                    const preview = document.createElement('div');
+                    preview.className = 'cell-preview';
+
+                    if (items[0]) {
+                        if (items[0].type === 'image') {
+                            const img = document.createElement('img');
+                            const rawUrl = items[0].url;
+                            img.src = rawUrl.includes('drive.google.com') ?
+                                `https://drive.google.com/thumbnail?id=${extractDriveId(rawUrl)}&sz=w200` : rawUrl;
+                            img.onerror = () => { img.style.display='none'; };
+                            preview.appendChild(img);
+                        } else {
+                            const ic = document.createElement('div');
+                            ic.className = 'cell-icon';
+                            ic.textContent = typeIcon(items[0].type);
+                            preview.appendChild(ic);
+                        }
+                    } else if (data.scriptureRef) {
+                        const ic = document.createElement('div');
+                        ic.className = 'cell-icon';
+                        ic.textContent = '📖';
+                        preview.appendChild(ic);
+                    }
+                    cell.appendChild(preview);
+
+                    // Title from notebookLM item or direct title field
+                    const title_ = data.title || (items.find(it=>it.type==='notebookLM'&&it.title)?.title);
+                    if (title_) {
+                        const titleEl = document.createElement('div');
+                        titleEl.className = 'cell-title';
+                        titleEl.textContent = title_;
+                        cell.appendChild(titleEl);
+                    }
+
+                    // Scripture ref on cell
+                    if (data.scriptureRef) {
+                        const sr = document.createElement('div');
+                        sr.className = 'cell-scripture';
+                        sr.textContent = data.scriptureRef;
+                        cell.appendChild(sr);
+                    }
+
+                    if (items.length > 1) {
+                        const dots = document.createElement('div');
+                        dots.className = 'cell-dots';
+                        items.slice(0, 4).forEach(() => {
+                            const dot = document.createElement('div');
+                            dot.className = 'cell-dot';
+                            dots.appendChild(dot);
+                        });
+                        cell.appendChild(dots);
+                    }
+                }
+
+                cell.addEventListener('click', () => window.openDay(ds, d));
+                grid.appendChild(cell);
+            }
+        };
+
+        window.loadMonth = async function() {
+            const mp = pad(curMonth + 1);
+            const days = new Date(curYear, curMonth+1, 0).getDate();
+            const ps = [];
+
+            for (let d = 1; d <= days; d++) {
+                const ds = `${curYear}-${mp}-${pad(d)}`;
+                ps.push(getDoc(doc(db,'contents',ds)).then(s => {
+                    if (s.exists()) cache[ds] = s.data();
+                }));
+            }
+
+            await Promise.all(ps);
+            window.renderCalendar();
+        };
+
+        // ════════════════════════════════════════════════
+        // DAY MODAL
+        // ════════════════════════════════════════════════
+        window.openDay = async function(ds, d) {
+            curDate = ds;
+            const DOW = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+            const dow = new Date(ds).getDay();
+            const [y, m] = ds.split('-');
+
+            document.getElementById('modalDateTitle').textContent = `${y}년 ${parseInt(m)}월 ${d}일`;
+            document.getElementById('modalDateSub').textContent = DOW[dow];
+            document.getElementById('dayModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Clear rich areas
+            ['scriptureArea','summaryArea','themesArea','visualCtaArea'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+
+            window.loadDayContent(ds);
+            window.listenComments(ds);
+        };
+
+        window.loadDayContent = async function(ds) {
+            const el = document.getElementById('contentItems');
+            el.innerHTML = '<div class="loading"><div class="spinner"></div> 불러오는 중...</div>';
+
+            try {
+                const snap = await getDoc(doc(db,'contents',ds));
+                if (!snap.exists()) {
+                    el.innerHTML = '<div class="no-content">📿 이 날의 묵상 콘텐츠가 없습니다<br><small style="color:var(--border)">관리자 패널에서 추가할 수 있습니다</small></div>';
+                    return;
+                }
+
+                const data = snap.data();
+                const items = data.items || [];
+
+                // ── Render rich metadata ──
+                if (data.scriptureRef || data.scriptureText) {
+                    const sa = document.getElementById('scriptureArea');
+                    sa.innerHTML = `
+                        <div class="scripture-block">
+                            <div class="scripture-ref">📖 ${esc(data.scriptureRef || '')}</div>
+                            ${data.scriptureText ? `<div class="scripture-text">"${esc(data.scriptureText)}"</div>` : ''}
+                        </div>`;
+                }
+
+                if (data.summary) {
+                    const sumA = document.getElementById('summaryArea');
+                    sumA.innerHTML = `
+                        <div class="summary-block">
+                            <div class="summary-label">오늘의 묵상 요약</div>
+                            <div class="summary-text">${esc(data.summary)}</div>
+                        </div>`;
+                }
+
+                if (data.keyThemes && data.keyThemes.length) {
+                    const th = document.getElementById('themesArea');
+                    th.innerHTML = `<div class="themes-wrap">${data.keyThemes.map(t=>`<span class="theme-tag">#${esc(t)}</span>`).join('')}</div>`;
+                }
+
+                // Visual CTA
+                if (data.scriptureRef || data.audioUrl || data.summary) {
+                    const va = document.getElementById('visualCtaArea');
+                    va.innerHTML = `
+                        <a href="visual.html?date=${ds}" class="visual-cta">
+                            <div>
+                                <div class="visual-cta-text">✨ 인포그래픽으로 보기</div>
+                                <div class="visual-cta-sub">슬라이드 · 시각화 · 오디오 플레이어</div>
+                            </div>
+                            <div class="visual-cta-arrow">→</div>
+                        </a>`;
+                }
+
+                if (!items.length) {
+                    el.innerHTML = data.scriptureRef
+                        ? '<div class="no-content" style="padding:1rem 0">콘텐츠 파일이 없습니다</div>'
+                        : '<div class="no-content">📿 이 날의 묵상 콘텐츠가 없습니다</div>';
+                    return;
+                }
+
+                el.innerHTML = '';
+                items.forEach((item, i) => el.appendChild(window.buildContentEl(item, i)));
+            } catch {
+                el.innerHTML = '<div class="no-content">⚠️ 불러오기 실패</div>';
+            }
+        };
+
+        window.buildContentEl = function(item) {
+            const wrap = document.createElement('div');
+            wrap.className = 'content-item';
+
+            const hd = document.createElement('div');
+            hd.className = 'content-item-header';
+            const badge = document.createElement('span');
+            badge.className = `type-badge type-${item.type}`;
+            badge.textContent = `${typeIcon(item.type)} ${typeName(item.type)}`;
+            hd.appendChild(badge);
+
+            if (item.title) {
+                const t = document.createElement('span');
+                t.className = 'content-item-title';
+                t.textContent = item.title;
+                hd.appendChild(t);
+            }
+            wrap.appendChild(hd);
+
+            const view = document.createElement('div');
+            view.className = 'content-viewer';
+            const url = item.url;
+
+            if (item.type === 'image') {
+                let imgSrc = url;
+                if (url.includes('drive.google.com')) {
+                    const id = extractDriveId(url);
+                    imgSrc = id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1200` : url;
+                }
+                view.innerHTML = `<img src="${imgSrc}" alt="${item.title || '묵상 이미지'}" loading="lazy">`;
+            } else if (item.type === 'pdf' || item.type === 'ppt') {
+                let src = url;
+                if (url.includes('drive.google.com/file/')) {
+                    const id = extractDriveId(url);
+                    src = id ? `https://drive.google.com/file/d/${id}/preview` : url;
+                } else {
+                    src = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+                }
+                view.innerHTML = `<iframe src="${src}" allowfullscreen></iframe>`;
+            } else if (item.type === 'video') {
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    const vid = extractYtId(url);
+                    view.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid}" allowfullscreen></iframe>`;
+                } else if (url.includes('drive.google.com')) {
+                    const id = extractDriveId(url);
+                    const src = id ? `https://drive.google.com/file/d/${id}/preview` : url;
+                    view.innerHTML = `<iframe src="${src}" allowfullscreen></iframe>`;
+                } else {
+                    view.innerHTML = `<video src="${url}" controls playsinline></video>`;
+                }
+            } else if (item.type === 'audio') {
+                let src = url;
+                if (url.includes('drive.google.com')) {
+                    const id = extractDriveId(url);
+                    src = id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+                }
+                view.innerHTML = `<div class="audio-wrap">🎵 <audio src="${src}" controls></audio></div>`;
+            } else if (item.type === 'notebookLM') {
+                view.innerHTML = `<div style="padding:1.2rem; text-align:center;">
+                    <a href="${url}" target="_blank" rel="noopener" style="font-family:var(--ff-ui);font-weight:600;font-size:0.9rem;color:var(--gold);text-decoration:none;padding:0.8rem 1.4rem;border:1px solid var(--border);border-radius:8px;display:inline-block;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(184,120,58,0.07)';" onmouseout="this.style.borderColor='var(--border)';this.style.background='transparent';">
+                        🧠 NotebookLM 콘텐츠 바로가기
+                    </a>
+                </div>`;
+            } else {
+                view.innerHTML = `<div style="padding:1rem;font-family:var(--ff-ui);font-size:0.85rem"><a href="${url}" target="_blank" rel="noopener" style="color:var(--gold)">파일 열기 ↗</a></div>`;
+            }
+
+            wrap.appendChild(view);
+            return wrap;
+        };
+
+        // ════════════════════════════════════════════════
+        // COMMENTS
+        // ════════════════════════════════════════════════
+        window.listenComments = function(ds) {
+            const list = document.getElementById('commentList');
+            const countEl = document.getElementById('commentCount');
+            list.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+            if (unsubCmt) unsubCmt();
+
+            const q = query(collection(db,'comments',ds,'messages'), orderBy('createdAt','asc'));
+            unsubCmt = onSnapshot(q, snap => {
+                list.innerHTML = '';
+                countEl.textContent = snap.size;
+
+                if (snap.empty) {
+                    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-family:var(--ff-ui);font-size:0.83rem;padding:0.8rem">첫 번째 묵상 나눔을 남겨주세요 🙏</div>';
+                    return;
+                }
+
+                snap.forEach(d => {
+                    const data = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'comment-item';
+                    const time = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+                    el.innerHTML = `
+                        <div class="comment-meta">
+                            <span class="comment-name">✦ ${esc(data.name)}</span>
+                            <span class="comment-time">${time}</span>
+                        </div>
+                        <div class="comment-text">${esc(data.text).replace(/\n/g,'<br>')}</div>`;
+                    list.appendChild(el);
+                });
+
+                list.scrollTop = list.scrollHeight;
+            });
+        };
+
+        window.submitComment = async function() {
+            const name = document.getElementById('commentName').value.trim();
+            const text = document.getElementById('commentText').value.trim();
+            if (!name) { window.toast('이름을 입력해주세요'); return; }
+            if (!text) { window.toast('내용을 입력해주세요'); return; }
+            if (!curDate) return;
+
+            try {
+                await addDoc(collection(db,'comments',curDate,'messages'), { name, text, createdAt: serverTimestamp() });
+                document.getElementById('commentText').value = '';
+                window.toast('댓글이 등록되었습니다 🙏');
+            } catch {
+                window.toast('오류가 발생했습니다');
+            }
+        };
+
+        // ════════════════════════════════════════════════
+        // ADMIN
+        // ════════════════════════════════════════════════
+        window.openAdmin = function() {
+            const loggedIn = sessionStorage.getItem('adminOK');
+            document.getElementById('adminModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            loggedIn ? window.renderAdminPanel(curDate || window.todayStr()) : window.renderAdminLogin();
+        };
+
+        window.renderAdminLogin = function() {
+            document.getElementById('adminBody').innerHTML = `
+                <div class="login-wrap">
+                    <h3>관리자 로그인</h3>
+                    <p>콘텐츠를 추가·관리하려면 비밀번호를 입력하세요</p>
+                    <div class="login-inner comment-form">
+                        <input type="password" id="adminPwd" placeholder="비밀번호" onkeydown="if(event.key==='Enter') window.checkAdminPwd()">
+                        <button class="btn-primary" style="margin-top:0.4rem" onclick="window.checkAdminPwd()">로그인</button>
+                    </div>
+                </div>`;
+        };
+
+        window.checkAdminPwd = function() {
+            const v = document.getElementById('adminPwd')?.value;
+            if (v === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminOK','1');
+                window.renderAdminPanel(curDate || window.todayStr());
+            } else {
+                window.toast('비밀번호가 틀렸습니다');
+            }
+        };
+
+        window.renderAdminPanel = async function(ds) {
+            document.getElementById('adminDateLabel').textContent = `날짜: ${ds}`;
+            const body = document.getElementById('adminBody');
+            body.innerHTML = `
+                <div class="form-group" style="margin-bottom:1rem">
+                    <label>날짜 선택</label>
+                    <input type="date" id="aDate" value="${ds}" onchange="window.switchAdminDate(this.value)">
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="window.switchAdminTab('basic',this)">기본 콘텐츠</button>
+                    <button class="admin-tab" onclick="window.switchAdminTab('notebooklm',this)">🧠 NotebookLM</button>
+                </div>
+
+                <!-- 기본 콘텐츠 탭 -->
+                <div id="tab-basic" class="admin-tab-panel active">
+                    <div style="font-family:var(--ff-ui);font-size:0.78rem;font-weight:700;color:var(--muted);letter-spacing:0.05em;margin-bottom:0.5rem">등록된 콘텐츠</div>
+                    <div id="aList" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.5rem">
+                        <div class="loading"><div class="spinner"></div></div>
+                    </div>
+                    <div class="admin-form-box">
+                        <div class="form-section-title">➕ 콘텐츠 추가</div>
+                        <div class="form-group">
+                            <label>콘텐츠 유형</label>
+                            <select id="aType">
+                                <option value="image">🖼️ 이미지</option>
+                                <option value="pdf">📄 PDF</option>
+                                <option value="ppt">📊 PPT / 슬라이드</option>
+                                <option value="video">🎬 동영상</option>
+                                <option value="audio">🎵 오디오</option>
+                                <option value="notebookLM">🧠 NotebookLM</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>제목 (선택)</label>
+                            <input type="text" id="aTitle" placeholder="예: 3월의 묵상">
+                        </div>
+                        <div class="form-group">
+                            <label>URL (Google Drive / YouTube)</label>
+                            <input type="url" id="aUrl" placeholder="https://..." inputmode="url">
+                        </div>
+                        <button class="btn-primary" onclick="window.addContent()">추가하기</button>
+                        <button class="btn-outline" onclick="sessionStorage.removeItem('adminOK');window.closeModal('adminModal')">로그아웃</button>
+                    </div>
+                </div>
+
+                <!-- NotebookLM 탭 -->
+                <div id="tab-notebooklm" class="admin-tab-panel">
+                    <div class="nb-import-box">
+                        <div class="nb-import-header">
+                            <span>🧠</span>
+                            <span class="nb-import-title">NotebookLM 풍부한 가져오기</span>
+                            <span class="nb-import-badge">AUTO</span>
+                        </div>
+                        <div class="form-group">
+                            <label>말씀 제목</label>
+                            <input type="text" id="nb_title" placeholder="예: 부활의 능력으로 사는 삶">
+                        </div>
+                        <div class="form-group">
+                            <label>성경 구절 참조 (예: 빌립보서 3:10-11)</label>
+                            <input type="text" id="nb_scriptureRef" placeholder="빌립보서 3:10-11">
+                        </div>
+                        <div class="form-group">
+                            <label>성경 본문</label>
+                            <textarea id="nb_scriptureText" placeholder="내가 그리스도와 그 부활의 권능과..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>묵상 요약 (NotebookLM Studio 텍스트 붙여넣기)</label>
+                            <textarea id="nb_summary" placeholder="오늘의 묵상 핵심 내용..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>핵심 테마 (쉼표 구분: 사랑, 소망, 믿음)</label>
+                            <input type="text" id="nb_themes" placeholder="사랑, 소망, 믿음">
+                        </div>
+                        <div class="form-group">
+                            <label>오디오 URL (NotebookLM Deep Dive → Google Drive 링크)</label>
+                            <input type="url" id="nb_audioUrl" placeholder="https://drive.google.com/file/d/...">
+                        </div>
+                        <div class="form-group">
+                            <label>이미지 URL (Google Drive 공유 링크)</label>
+                            <input type="url" id="nb_imageUrl" placeholder="https://drive.google.com/file/d/...">
+                        </div>
+                        <div class="form-group">
+                            <label>NotebookLM 노트북 URL</label>
+                            <input type="url" id="nb_nbUrl" value="${NOTEBOOKLM_URL}">
+                        </div>
+                        <button class="btn-nb-import" onclick="window.saveNotebookLMContent()">
+                            🧠 NotebookLM 콘텐츠 저장
+                        </button>
+                        <button class="btn-outline" onclick="sessionStorage.removeItem('adminOK');window.closeModal('adminModal')">로그아웃</button>
+                    </div>
+                </div>
+            `;
+
+            await window.refreshAList(ds);
+        };
+
+        window.switchAdminTab = function(tab, btn) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + tab)?.classList.add('active');
+        };
+
+        window.saveNotebookLMContent = async function() {
+            const ds = document.getElementById('aDate').value;
+            const title = document.getElementById('nb_title').value.trim();
+            const scriptureRef = document.getElementById('nb_scriptureRef').value.trim();
+            const scriptureText = document.getElementById('nb_scriptureText').value.trim();
+            const summary = document.getElementById('nb_summary').value.trim();
+            const themesRaw = document.getElementById('nb_themes').value.trim();
+            const audioUrl = document.getElementById('nb_audioUrl').value.trim();
+            const imageUrl = document.getElementById('nb_imageUrl').value.trim();
+            const nbUrl = document.getElementById('nb_nbUrl').value.trim();
+
+            if (!scriptureRef && !summary) { window.toast('최소한 성경구절 또는 요약을 입력해주세요'); return; }
+
+            const keyThemes = themesRaw ? themesRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+            // Build items array
+            const items = [];
+            if (imageUrl) items.push({ type:'image', title: title || '묵상 이미지', url: imageUrl });
+            if (audioUrl) items.push({ type:'audio', title: `${title || '묵상'} - 오디오`, url: audioUrl });
+            if (nbUrl)    items.push({ type:'notebookLM', title: title || '이한규365묵상', url: nbUrl });
+
+            const docData = {
+                title,
+                scriptureRef,
+                scriptureText,
+                summary,
+                keyThemes,
+                audioUrl,
+                imageUrl,
+                notebookLMUrl: nbUrl,
+                source: 'notebooklm',
+                syncedAt: new Date().toISOString(),
+                items
+            };
+
+            // Remove empty string fields
+            Object.keys(docData).forEach(k => { if (docData[k] === '') delete docData[k]; });
+
+            try {
+                const ref = doc(db,'contents',ds);
+                const snap = await getDoc(ref);
+                const existing = snap.exists() ? snap.data() : {};
+                await setDoc(ref, { ...existing, ...docData });
+                cache[ds] = { ...existing, ...docData };
+
+                window.toast('✅ NotebookLM 콘텐츠가 저장되었습니다!');
+                window.renderCalendar();
+                await window.refreshAList(ds);
+
+                if (curDate === ds) {
+                    window.loadDayContent(ds);
+                }
+            } catch (e) {
+                window.toast('저장 실패: ' + e.message);
+            }
+        };
+
+        window.refreshAList = async function(ds) {
+            const el = document.getElementById('aList');
+            if (!el) return;
+
+            try {
+                const snap = await getDoc(doc(db,'contents',ds));
+                const items = snap.exists() ? (snap.data().items || []) : [];
+
+                if (!items.length) {
+                    el.innerHTML = '<div style="font-family:var(--ff-ui);font-size:0.8rem;color:var(--muted)">등록된 콘텐츠 없음</div>';
+                    return;
+                }
+
+                el.innerHTML = '';
+                items.forEach((item, i) => {
+                    const d = document.createElement('div');
+                    d.className = 'admin-item';
+                    d.innerHTML = `<span>${typeIcon(item.type)}</span> <span style="font-weight:600">${typeName(item.type)}</span> <span class="item-title">${item.title || item.url.slice(0,45)}</span> <button class="btn-delete" onclick="window.delContent(${i})" title="삭제">🗑</button>`;
+                    el.appendChild(d);
+                });
+            } catch {
+                el.innerHTML = '<div style="color:#C45A5A;font-size:0.8rem;font-family:var(--ff-ui)">로드 실패</div>';
+            }
+        };
+
+        window.switchAdminDate = function(ds) {
+            document.getElementById('adminDateLabel').textContent = `날짜: ${ds}`;
+            window.refreshAList(ds);
+        };
+
+        window.addContent = async function() {
+            const ds = document.getElementById('aDate').value;
+            const tp = document.getElementById('aType').value;
+            const ti = document.getElementById('aTitle').value.trim();
+            const url = document.getElementById('aUrl').value.trim();
+
+            if (!url) { window.toast('URL을 입력해주세요'); return; }
+
+            try {
+                const ref = doc(db,'contents',ds);
+                const snap = await getDoc(ref);
+                const arr = snap.exists() ? (snap.data().items || []) : [];
+                arr.push({ type: tp, title: ti, url });
+
+                await setDoc(ref, { ...(snap.data()||{}), items: arr });
+                cache[ds] = { ...(snap.data()||{}), items: arr };
+
+                document.getElementById('aUrl').value = '';
+                document.getElementById('aTitle').value = '';
+                window.toast('추가되었습니다 ✅');
+
+                await window.refreshAList(ds);
+                window.renderCalendar();
+                if (curDate === ds) window.loadDayContent(ds);
+            } catch (e) {
+                window.toast('저장 실패: ' + e.message);
+            }
+        };
+
+        window.delContent = async function(idx) {
+            const ds = document.getElementById('aDate').value;
+            if (!confirm('삭제하시겠습니까?')) return;
+
+            try {
+                const ref = doc(db,'contents',ds);
+                const snap = await getDoc(ref);
+                const arr = snap.data().items || [];
+                arr.splice(idx, 1);
+
+                await setDoc(ref, { ...snap.data(), items: arr });
+                cache[ds] = { ...snap.data(), items: arr };
+
+                window.toast('삭제되었습니다');
+                await window.refreshAList(ds);
+                window.renderCalendar();
+                if (curDate === ds) window.loadDayContent(ds);
+            } catch {
+                window.toast('삭제 실패');
+            }
+        };
+
+        // ════════════════════════════════════════════════
+        // HELPERS
+        // ════════════════════════════════════════════════
+        function typeIcon(t) {
+            return {image:'🖼️',pdf:'📄',ppt:'📊',video:'🎬',audio:'🎵',notebookLM:'🧠'}[t] || '📎';
+        }
+
+        function typeName(t) {
+            return {image:'이미지',pdf:'PDF',ppt:'PPT',video:'동영상',audio:'오디오',notebookLM:'NotebookLM'}[t] || t;
+        }
+
+        function pad(n) { return String(n).padStart(2,'0'); }
+
+        function esc(s) {
+            if (!s) return '';
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        window.todayStr = function() {
+            const d = new Date();
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+        };
+
+        function extractDriveId(url) {
+            const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            return m ? m[1] : null;
+        }
+
+        function extractYtId(url) {
+            const m = url.match(/(?:v=|youtu\.be\/|embed\/)([^&?\n]+)/);
+            return m ? m[1] : '';
+        }
+
+        window.toast = function(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2600);
+        };
+
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = '';
+            if (id === 'dayModal' && unsubCmt) { unsubCmt(); unsubCmt = null; }
+        };
+
+        document.querySelectorAll('.modal-overlay').forEach(el =>
+            el.addEventListener('click', e => { if (e.target === el) window.closeModal(el.id); })
+        );
+
+        document.getElementById('prevMonth').onclick = () => {
+            curMonth--;
+            if (curMonth < 0) { curMonth = 11; curYear--; }
+            cache = {};
+            window.loadMonth();
+        };
+
+        document.getElementById('nextMonth').onclick = () => {
+            curMonth++;
+            if (curMonth > 11) { curMonth = 0; curYear++; }
+            cache = {};
+            window.loadMonth();
+        };
+
+        // ── Init ──
+        window.loadMonth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "nmeditation",
+  "version": "2.0.0",
+  "description": "이한규 365묵상 - 안티그래비티 자동화 시스템",
+  "scripts": {
+    "serve": "npx serve public -p 3000",
+    "sync": "node scripts/sync.js",
+    "sync:today": "node scripts/sync.js --date today",
+    "deploy": "firebase deploy --only hosting",
+    "dev": "npx serve public -p 3000 --cors"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0",
+    "firebase-admin": "^13.0.0",
+    "dotenv": "^16.0.0",
+    "node-fetch": "^3.3.2",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "playwright": "^1.45.0"
+  },
+  "devDependencies": {
+    "serve": "^14.2.3"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

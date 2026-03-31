@@ -1,0 +1,60 @@
+{
+  "_schema": "nmeditation-v2",
+  "_description": "이한규 365묵상 구조화 데이터 - NotebookLM 자동화 연동",
+  "lastUpdated": "2026-03-31T06:00:00Z",
+  "stats": {
+    "total": 3,
+    "thisMonth": 3,
+    "streak": 3
+  },
+  "meditations": [
+    {
+      "date": "2026-03-31",
+      "title": "부활의 능력으로 사는 삶",
+      "scriptureRef": "빌립보서 3:10-11",
+      "scriptureText": "내가 그리스도와 그 부활의 권능과 그 고난에 참여함을 알고자 하여 그의 죽으심을 본받아 어떻게 해서든지 죽은 자 가운데서 부활에 이르려 하노라",
+      "summary": "바울은 그리스도와의 깊은 연합을 통해 부활의 능력을 경험하기 원했습니다. 고난에 참여하는 것도 마다하지 않았던 그의 열정은, 우리에게 현재의 어려움 속에서도 부활의 소망을 붙들라는 도전을 줍니다. 오늘 나는 부활의 능력으로 무엇을 이겨내고 있습니까?",
+      "keyThemes": ["부활", "능력", "고난", "소망", "연합"],
+      "audioUrl": "https://drive.google.com/uc?export=download&id=SAMPLE_AUDIO_ID",
+      "imageUrl": "https://drive.google.com/thumbnail?id=SAMPLE_IMAGE_ID&sz=w1200",
+      "notebookLMUrl": "https://notebooklm.google.com/notebook/53e7aa7c-e622-4bb5-a856-6d736dbd5ddd",
+      "source": "notebooklm",
+      "syncedAt": "2026-03-31T06:00:00Z",
+      "items": [
+        {
+          "type": "notebookLM",
+          "title": "이한규365묵상 - 2026-03-31",
+          "url": "https://notebooklm.google.com/notebook/53e7aa7c-e622-4bb5-a856-6d736dbd5ddd"
+        }
+      ]
+    },
+    {
+      "date": "2026-03-30",
+      "title": "기도의 능력",
+      "scriptureRef": "야고보서 5:16",
+      "scriptureText": "그러므로 너희 죄를 서로 고백하며 병 낫기를 위하여 서로 기도하라 의인의 간구는 역사하는 힘이 많으니라",
+      "summary": "의인의 기도는 단순한 말이 아니라 하나님의 능력이 임하는 통로입니다. 서로를 위해 기도하는 공동체는 하나님께서 역사하시는 현장이 됩니다. 오늘 나는 누구를 위해 기도하고 있습니까?",
+      "keyThemes": ["기도", "공동체", "치유", "믿음", "능력"],
+      "audioUrl": "",
+      "imageUrl": "",
+      "notebookLMUrl": "https://notebooklm.google.com/notebook/53e7aa7c-e622-4bb5-a856-6d736dbd5ddd",
+      "source": "notebooklm",
+      "syncedAt": "2026-03-30T07:30:00Z",
+      "items": []
+    },
+    {
+      "date": "2026-03-29",
+      "title": "하나님의 인도하심",
+      "scriptureRef": "시편 23:1-3",
+      "scriptureText": "여호와는 나의 목자시니 내게 부족함이 없으리로다 그가 나를 푸른 풀밭에 누이시며 쉴 만한 물 가로 인도하시는도다",
+      "summary": "선한 목자 되신 하나님께서는 우리를 쉴 만한 곳으로 인도하십니다. 세상의 분주함 속에서도 하나님의 손을 붙잡으면 진정한 안식을 누릴 수 있습니다. 오늘 하루, 목자이신 주님을 신뢰하며 나아가십시오.",
+      "keyThemes": ["인도", "안식", "신뢰", "공급", "목자"],
+      "audioUrl": "",
+      "imageUrl": "",
+      "notebookLMUrl": "https://notebooklm.google.com/notebook/53e7aa7c-e622-4bb5-a856-6d736dbd5ddd",
+      "source": "notebooklm",
+      "syncedAt": "2026-03-29T07:00:00Z",
+      "items": []
+    }
+  ]
+}
