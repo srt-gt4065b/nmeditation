@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>묵상 인포그래픽 | Daily Meditation Visual</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F7F3EC;
+            --parchment: #EDE5D4;
+            --stone: #2C2416;
+            --gold: #B8783A;
+            --gold-light: #D49B6A;
+            --gold-pale: #F5E8D4;
+            --sage: #6A8F82;
+            --sage-light: #E8F2EF;
+            --muted: #8B7D6B;
+            --border: #D5C9B5;
+            --white: #FDFAF5;
+            --shadow: rgba(44, 36, 22, 0.12);
+            --ff-display: 'Playfair Display', 'Noto Serif KR', serif;
+            --ff-body: 'Noto Serif KR', serif;
+            --ff-ui: 'Noto Sans KR', sans-serif;
+
+            /* Slide colors */
+            --slide-1-bg: linear-gradient(160deg, #2C2416 0%, #3d3025 50%, #4a3a2c 100%);
+            --slide-2-bg: linear-gradient(160deg, #F7F3EC, #EDE5D4);
+            --slide-3-bg: linear-gradient(160deg, #1a2e2a, #2a4a42);
+            --slide-4-bg: linear-gradient(160deg, #F7F3EC, #FBF5EA);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--cream);
+            font-family: var(--ff-body);
+            color: var(--stone);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Top Nav ── */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.2rem;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-back:hover { background: var(--parchment); color: var(--stone); }
+
+        .nav-title {
+            font-family: var(--ff-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--stone);
+        }
+
+        .nav-slide-btn {
+            font-family: var(--ff-ui);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.4rem 0.9rem;
+            background: var(--stone);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+
+        .nav-slide-btn:hover { background: var(--gold); }
+
+        /* ── Date Navigator ── */
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem 0.6rem;
+        }
+
+        .date-nav button {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .date-nav button:hover { border-color: var(--gold); color: var(--gold); }
+
+        .date-display {
+            font-family: var(--ff-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-width: 160px;
+            text-align: center;
+        }
+
+        /* ── Loading / Error ── */
+        .state-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .state-msg {
+            font-family: var(--ff-ui);
+            font-size: 0.9rem;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* ── Infographic Layout ── */
+        .infographic {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem 5rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.2rem;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .infographic.visible { display: flex; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Hero Card ── */
+        .hero-card {
+            background: var(--slide-1-bg);
+            border-radius: 20px;
+            padding: 2.2rem 1.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(184,120,58,0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(106,143,130,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-ornament {
+            font-family: var(--ff-display);
+            font-style: italic;
+            font-size: 0.72rem;
+            color: var(--gold-light);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-date {
+            font-family: var(--ff-ui);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-family: var(--ff-display);
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 400;
+            color: #fff;
+            line-height: 1.3;
+            margin-bottom: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-scripture-ref {
+            display: inline-block;
+            font-family: var(--ff-ui);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            background: rgba(184,120,58,0.15);
+            border: 1px solid rgba(184,120,58,0.3);
+            border-radius: 16px;
+            padding: 0.3rem 0.85rem;
+            letter-spacing: 0.04em;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-verse {
+            font-family: var(--ff-body);
+            font-size: 1rem;
+            color: rgba(255,255,255,0.88);
+            line-height: 1.85;
+            font-style: italic;
+            border-left: 3px solid var(--gold);
+            padding-left: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Audio Card ── */
+        .audio-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+            position: relative;
+        }
+
+        .card-label {
+            font-family: var(--ff-ui);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .audio-player-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .audio-title {
+            font-family: var(--ff-display);
+            font-size: 1rem;
+            font-style: italic;
+            color: var(--stone);
+        }
+
+        .waveform-bar {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .waveform-bar span {
+            display: block;
+            width: 3px;
+            background: var(--gold);
+            border-radius: 2px;
+            opacity: 0.6;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        .waveform-bar span:nth-child(2n) { animation-delay: 0.1s; }
+        .waveform-bar span:nth-child(3n) { animation-delay: 0.2s; }
+        .waveform-bar span:nth-child(4n) { animation-delay: 0.3s; }
+        .waveform-bar span:nth-child(5n) { animation-delay: 0.4s; }
+
+        .waveform-bar.paused span { animation-play-state: paused; }
+
+        @keyframes wave {
+            0%, 100% { height: 8px; }
+            50% { height: 32px; }
+        }
+
+        .custom-audio {
+            width: 100%;
+            accent-color: var(--gold);
+        }
+
+        .no-audio {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1rem;
+            background: var(--parchment);
+            border-radius: 10px;
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .nb-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #3A66B5, #5580CC);
+            color: #fff;
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .nb-link-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(58,102,181,0.35); }
+
+        /* ── Summary Card ── */
+        .summary-card {
+            background: linear-gradient(135deg, #F9F4EC, var(--white));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+        }
+
+        .summary-body {
+            font-family: var(--ff-body);
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--stone);
+        }
+
+        /* ── Themes Infographic ── */
+        .themes-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.7rem;
+            margin-top: 0.2rem;
+        }
+
+        .theme-bubble {
+            background: var(--sage-light);
+            border: 1px solid rgba(106,143,130,0.3);
+            border-radius: 12px;
+            padding: 0.7rem 0.8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .theme-bubble:hover { transform: translateY(-2px); }
+
+        .theme-bubble::before {
+            content: attr(data-num);
+            position: absolute;
+            top: -5px;
+            right: 3px;
+            font-size: 2.5rem;
+            font-family: var(--ff-display);
+            font-weight: 600;
+            color: rgba(106,143,130,0.08);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .theme-word {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--sage);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Stats Row ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.7rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 0.8rem;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-family: var(--ff-display);
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-family: var(--ff-ui);
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.3rem;
+        }
+
+        /* ── History Timeline ── */
+        .history-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+        }
+
+        .history-scroll {
+            display: flex;
+            gap: 0.7rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-scroll::-webkit-scrollbar { display: none; }
+
+        .history-item {
+            flex-shrink: 0;
+            width: 120px;
+            background: var(--parchment);
+            border-radius: 12px;
+            padding: 0.8rem 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .history-item:hover { transform: translateY(-2px); border-color: var(--gold-light); }
+        .history-item.active { border-color: var(--gold); background: var(--gold-pale); }
+
+        .hist-date {
+            font-family: var(--ff-ui);
+            font-size: 0.68rem;
+            color: var(--muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .hist-title {
+            font-family: var(--ff-display);
+            font-size: 0.78rem;
+            font-style: italic;
+            color: var(--stone);
+            line-height: 1.4;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .hist-ref {
+            font-family: var(--ff-ui);
+            font-size: 0.63rem;
+            color: var(--sage);
+            margin-top: 0.3rem;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* ════════════════════════════════════════
+           SLIDE MODE
+        ════════════════════════════════════════ */
+        .slide-overlay {
+            position: fixed;
+            inset: 0;
+            background: #1a1209;
+            z-index: 500;
+            display: none;
+            flex-direction: column;
+        }
+
+        .slide-overlay.active { display: flex; }
+
+        /* Slide Top Bar */
+        .slide-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1.2rem;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+        }
+
+        .slide-close {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .slide-close:hover { background: rgba(255,255,255,0.2); }
+
+        .slide-counter {
+            font-family: var(--ff-ui);
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .slide-share-btn {
+            background: var(--gold);
+            border: none;
+            color: #fff;
+            font-family: var(--ff-ui);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.4rem 0.85rem;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .slide-share-btn:hover { background: var(--gold-light); }
+
+        /* Slides Container */
+        .slides-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.35s, transform 0.35s;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-60px);
+        }
+
+        /* Slide 1: Scripture */
+        .slide-1 {
+            background: var(--slide-1-bg);
+        }
+
+        .s1-ornament {
+            font-family: var(--ff-display);
+            font-style: italic;
+            color: var(--gold-light);
+            font-size: 0.75rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .s1-ref {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            letter-spacing: 0.1em;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .s1-verse {
+            font-family: var(--ff-display);
+            font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+            font-style: italic;
+            color: #fff;
+            line-height: 1.75;
+            text-align: center;
+            max-width: 580px;
+            position: relative;
+        }
+
+        .s1-verse::before {
+            content: '\201C';
+            font-size: 4rem;
+            color: rgba(184,120,58,0.25);
+            position: absolute;
+            top: -1rem;
+            left: -1.5rem;
+            font-family: var(--ff-display);
+            line-height: 1;
+        }
+
+        .s1-title {
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            margin-top: 2rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        /* Slide 2: Summary */
+        .slide-2 { background: var(--slide-2-bg); }
+
+        .s2-label {
+            font-family: var(--ff-ui);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+
+        .s2-title {
+            font-family: var(--ff-display);
+            font-size: clamp(1.3rem, 3.5vw, 2rem);
+            color: var(--stone);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .s2-divider {
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            margin: 0 auto 1.5rem;
+        }
+
+        .s2-text {
+            font-family: var(--ff-body);
+            font-size: 0.95rem;
+            line-height: 1.9;
+            color: var(--stone);
+            text-align: center;
+            max-width: 560px;
+        }
+
+        /* Slide 3: Themes */
+        .slide-3 { background: var(--slide-3-bg); }
+
+        .s3-label {
+            font-family: var(--ff-ui);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .s3-themes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            max-width: 500px;
+        }
+
+        .s3-bubble {
+            font-family: var(--ff-ui);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-weight: 700;
+            color: #fff;
+            background: rgba(106,143,130,0.25);
+            border: 1px solid rgba(106,143,130,0.5);
+            border-radius: 50px;
+            padding: 0.6rem 1.4rem;
+            letter-spacing: 0.03em;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+
+        .s3-bubble:nth-child(odd) {
+            background: rgba(184,120,58,0.2);
+            border-color: rgba(184,120,58,0.4);
+        }
+
+        .s3-bubble:hover { transform: scale(1.05); }
+
+        /* Slide 4: Audio & Close */
+        .slide-4 { background: var(--slide-1-bg); }
+
+        .s4-title {
+            font-family: var(--ff-display);
+            font-size: clamp(1.2rem, 3vw, 1.7rem);
+            color: #fff;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .s4-sub {
+            font-family: var(--ff-ui);
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.45);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .s4-audio-wrap {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 1.4rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .s4-audio-label {
+            font-family: var(--ff-ui);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+
+        .s4-audio audio {
+            width: 100%;
+            accent-color: var(--gold);
+        }
+
+        .s4-waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 32px;
+            margin-bottom: 0.8rem;
+        }
+
+        .s4-waveform span {
+            display: block;
+            width: 3px;
+            background: var(--gold-light);
+            border-radius: 2px;
+            animation: wave 1.2s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        .s4-waveform span:nth-child(2n) { animation-delay: 0.15s; }
+        .s4-waveform span:nth-child(3n) { animation-delay: 0.3s; }
+        .s4-waveform span:nth-child(5n) { animation-delay: 0.45s; }
+
+        .s4-nb-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(135deg, #3A66B5, #5580CC);
+            color: #fff;
+            font-family: var(--ff-ui);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 24px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .s4-nb-link:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(58,102,181,0.4); }
+
+        /* Slide Nav Dots */
+        .slide-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .slide-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slide-dot.active {
+            background: var(--gold);
+            transform: scale(1.3);
+        }
+
+        /* Slide Arrow Buttons */
+        .slide-arrows {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0.5rem 1rem 1rem;
+            flex-shrink: 0;
+        }
+
+        .slide-arrow {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .slide-arrow:hover { background: rgba(255,255,255,0.2); border-color: var(--gold); }
+        .slide-arrow:disabled { opacity: 0.3; cursor: default; }
+
+        /* ── Empty State for infographic ── */
+        .empty-card {
+            background: var(--white);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .empty-card-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+        .empty-card-title {
+            font-family: var(--ff-display);
+            font-size: 1.1rem;
+            color: var(--stone);
+            margin-bottom: 0.5rem;
+        }
+        .empty-card-sub {
+            font-family: var(--ff-ui);
+            font-size: 0.83rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 1.2rem;
+        }
+        .back-to-calendar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.65rem 1.3rem;
+            background: var(--gold);
+            color: #fff;
+            font-family: var(--ff-ui);
+            font-size: 0.83rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .back-to-calendar:hover { background: var(--stone); }
+
+        /* ── Image Card ── */
+        .image-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .image-card img {
+            width: 100%;
+            display: block;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: repeat(3,1fr); }
+            .themes-grid { grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Nav -->
+    <nav class="top-nav">
+        <a href="index.html" class="nav-back">← 캘린더</a>
+        <span class="nav-title">묵상 인포그래픽</span>
+        <button class="nav-slide-btn" onclick="openSlides()">▶ 슬라이드</button>
+    </nav>
+
+    <!-- Date Navigator -->
+    <div class="date-nav">
+        <button id="prevDay" onclick="changeDay(-1)">◀</button>
+        <div class="date-display" id="dateDisplay">불러오는 중...</div>
+        <button id="nextDay" onclick="changeDay(1)">▶</button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="state-screen" id="loadingState">
+        <div class="spinner"></div>
+        <div class="state-msg">묵상 데이터를 불러오는 중...</div>
+    </div>
+
+    <!-- Infographic Content -->
+    <div class="infographic" id="infographic">
+
+        <!-- Hero: Scripture -->
+        <div class="hero-card" id="heroCard">
+            <div class="hero-ornament">✦ Daily Meditation ✦</div>
+            <div class="hero-date" id="heroDate"></div>
+            <div class="hero-title" id="heroTitle">오늘의 묵상</div>
+            <div class="hero-scripture-ref" id="heroRef"></div>
+            <div class="hero-verse" id="heroVerse"></div>
+        </div>
+
+        <!-- Audio -->
+        <div class="audio-card" id="audioCard">
+            <div class="card-label">🎵 오디오 묵상</div>
+            <div class="audio-player-wrap" id="audioPlayerWrap">
+                <div class="no-audio">📭 오디오가 아직 없습니다. 어드민에서 추가해주세요.</div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-card" id="summaryCard" style="display:none">
+            <div class="card-label">📝 오늘의 묵상 요약</div>
+            <div class="summary-body" id="summaryBody"></div>
+        </div>
+
+        <!-- Key Themes Infographic -->
+        <div class="themes-card" id="themesCard" style="display:none">
+            <div class="card-label">🌿 핵심 테마</div>
+            <div class="themes-grid" id="themesGrid"></div>
+        </div>
+
+        <!-- Image -->
+        <div class="image-card" id="imageCard" style="display:none">
+            <img id="imageEl" src="" alt="묵상 이미지">
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-num" id="statTotal">-</div>
+                <div class="stat-label">전체 묵상</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statMonth">-</div>
+                <div class="stat-label">이번 달</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="statStreak">-</div>
+                <div class="stat-label">연속 일수</div>
+            </div>
+        </div>
+
+        <!-- History Timeline -->
+        <div class="history-card" id="historyCard">
+            <div class="card-label">📅 최근 묵상 기록</div>
+            <div class="history-scroll" id="historyScroll"></div>
+        </div>
+
+    </div>
+
+    <!-- Empty State -->
+    <div class="infographic" id="emptyState">
+        <div class="empty-card">
+            <div class="empty-card-icon">📿</div>
+            <div class="empty-card-title">이 날의 묵상이 없습니다</div>
+            <div class="empty-card-sub">어드민 패널에서 NotebookLM 묵상 내용을 추가하거나<br>다른 날을 선택해보세요.</div>
+            <a href="index.html" class="back-to-calendar">← 캘린더로 이동</a>
+        </div>
+    </div>
+
+    <!-- Slide Overlay -->
+    <div class="slide-overlay" id="slideOverlay">
+        <div class="slide-topbar">
+            <button class="slide-close" onclick="closeSlides()">✕</button>
+            <div class="slide-counter"><span id="slideNum">1</span> / <span id="slideTotal">4</span></div>
+            <button class="slide-share-btn" onclick="shareSlide()">공유</button>
+        </div>
+
+        <div class="slides-container" id="slidesContainer">
+            <!-- Slide 1: Scripture -->
+            <div class="slide slide-1 active" id="slide-1">
+                <div class="s1-ornament">✦ Daily Meditation ✦</div>
+                <div class="s1-ref" id="s1Ref">빌립보서 3:10-11</div>
+                <div class="s1-verse" id="s1Verse">내가 그리스도와 그 부활의 권능과...</div>
+                <div class="s1-title" id="s1Title">이한규 365묵상</div>
+            </div>
+
+            <!-- Slide 2: Summary -->
+            <div class="slide slide-2" id="slide-2">
+                <div class="s2-label">오늘의 묵상</div>
+                <div class="s2-title" id="s2Title">묵상 제목</div>
+                <div class="s2-divider"></div>
+                <div class="s2-text" id="s2Text">묵상 요약 내용이 여기에 표시됩니다.</div>
+            </div>
+
+            <!-- Slide 3: Key Themes -->
+            <div class="slide slide-3" id="slide-3">
+                <div class="s3-label">핵심 테마</div>
+                <div class="s3-themes" id="s3Themes"></div>
+            </div>
+
+            <!-- Slide 4: Audio -->
+            <div class="slide slide-4" id="slide-4">
+                <div class="s4-title" id="s4Title">오디오 묵상</div>
+                <div class="s4-sub" id="s4Sub">NotebookLM Audio Deep Dive</div>
+                <div class="s4-audio-wrap" id="s4AudioWrap">
+                    <div class="s4-audio-label">🎵 Deep Dive Audio</div>
+                    <div class="s4-waveform" id="s4Waveform"></div>
+                    <div class="s4-audio" id="s4AudioEl"></div>
+                </div>
+                <a href="#" class="s4-nb-link" id="s4NbLink" target="_blank">🧠 NotebookLM 열기</a>
+            </div>
+        </div>
+
+        <div class="slide-dots" id="slideDots"></div>
+
+        <div class="slide-arrows">
+            <button class="slide-arrow" id="slidePrev" onclick="prevSlide()">◀</button>
+            <button class="slide-arrow" id="slideNext" onclick="nextSlide()">▶</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, limit, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCc4s19vYIryTLdr5HWslTOKBQ2PoyVEYQ",
+            authDomain: "meditation-1c609.firebaseapp.com",
+            projectId: "meditation-1c609",
+            storageBucket: "meditation-1c609.firebasestorage.app",
+            messagingSenderId: "252065688168",
+            appId: "1:252065688168:web:2dbef63323a8dc4864a9dd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentData = null;
+        let currentDate = '';
+        let historyData = [];
+        let currentSlide = 0;
+        let totalSlides = 4;
+
+        function pad(n) { return String(n).padStart(2,'0'); }
+
+        function todayStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+        }
+
+        function formatDisplayDate(ds) {
+            const [y, m, d] = ds.split('-');
+            const DOW = ['일','월','화','수','목','금','토'];
+            const dow = new Date(ds).getDay();
+            return `${parseInt(y)}년 ${parseInt(m)}월 ${parseInt(d)}일 (${DOW[dow]})`;
+        }
+
+        function extractDriveId(url) {
+            const m = url?.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            return m ? m[1] : null;
+        }
+
+        function normAudioUrl(url) {
+            if (!url) return null;
+            if (url.includes('drive.google.com')) {
+                const id = extractDriveId(url);
+                return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+            }
+            return url;
+        }
+
+        function normImageUrl(url) {
+            if (!url) return null;
+            if (url.includes('drive.google.com')) {
+                const id = extractDriveId(url);
+                return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w1200` : url;
+            }
+            return url;
+        }
+
+        function esc(s) {
+            if (!s) return '';
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        // ────────────────────────────────────────────────
+        // LOAD DATA
+        // ────────────────────────────────────────────────
+        async function loadMeditationData(ds) {
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('infographic').classList.remove('visible');
+            document.getElementById('emptyState').classList.remove('visible');
+            document.getElementById('dateDisplay').textContent = formatDisplayDate(ds);
+
+            try {
+                const snap = await getDoc(doc(db,'contents',ds));
+                if (!snap.exists() || (!snap.data().scriptureRef && !snap.data().summary && !(snap.data().items?.length))) {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('emptyState').classList.add('visible');
+                    currentData = null;
+                    return;
+                }
+
+                const data = snap.data();
+                currentData = data;
+
+                // Find audio/image from items if not in top-level fields
+                const items = data.items || [];
+                const audioItem = items.find(i => i.type === 'audio');
+                const imageItem = items.find(i => i.type === 'image');
+                const nbItem = items.find(i => i.type === 'notebookLM');
+
+                data._audioUrl = data.audioUrl || (audioItem?.url) || null;
+                data._imageUrl = data.imageUrl || (imageItem?.url) || null;
+                data._nbUrl = data.notebookLMUrl || (nbItem?.url) || 'https://notebooklm.google.com/notebook/53e7aa7c-e622-4bb5-a856-6d736dbd5ddd';
+
+                renderInfographic(ds, data);
+                renderSlides(ds, data);
+                loadStats(ds);
+                loadHistory(ds);
+
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('infographic').classList.add('visible');
+            } catch (e) {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('emptyState').classList.add('visible');
+                console.error(e);
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // RENDER INFOGRAPHIC
+        // ────────────────────────────────────────────────
+        function renderInfographic(ds, data) {
+            const [y, m, d] = ds.split('-');
+            const DOW = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+
+            // Hero
+            document.getElementById('heroDate').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일 ${DOW[new Date(ds).getDay()]}`;
+            document.getElementById('heroTitle').textContent = data.title || '오늘의 묵상';
+            document.getElementById('heroRef').textContent = data.scriptureRef || '';
+            document.getElementById('heroVerse').textContent = data.scriptureText || '';
+            document.getElementById('heroRef').style.display = data.scriptureRef ? 'inline-block' : 'none';
+
+            // Audio
+            const audioWrap = document.getElementById('audioPlayerWrap');
+            const audioSrc = normAudioUrl(data._audioUrl);
+            if (audioSrc) {
+                // Build waveform bars
+                const bars = Array.from({length:36}, (_,i) => {
+                    const h = 8 + Math.sin(i*0.8)*8 + Math.random()*16;
+                    return `<span style="height:${Math.max(8,h)}px;animation-delay:${(i*0.04).toFixed(2)}s"></span>`;
+                }).join('');
+
+                audioWrap.innerHTML = `
+                    <div class="audio-title">${esc(data.title || '오늘의 묵상 오디오')}</div>
+                    <div class="waveform-bar" id="mainWaveform">${bars}</div>
+                    <audio class="custom-audio" id="mainAudio" src="${audioSrc}" controls
+                        onplay="document.getElementById('mainWaveform').classList.remove('paused')"
+                        onpause="document.getElementById('mainWaveform').classList.add('paused')"
+                        onended="document.getElementById('mainWaveform').classList.add('paused')">
+                    </audio>`;
+            } else if (data._nbUrl) {
+                audioWrap.innerHTML = `
+                    <div class="no-audio">🧠 NotebookLM에서 Audio Overview를 확인하세요</div>
+                    <a href="${data._nbUrl}" target="_blank" class="nb-link-btn">🧠 NotebookLM 스튜디오 열기 →</a>`;
+            } else {
+                audioWrap.innerHTML = `<div class="no-audio">📭 오디오가 아직 없습니다. 어드민 → NotebookLM 탭에서 추가해주세요.</div>`;
+            }
+
+            // Summary
+            const summaryCard = document.getElementById('summaryCard');
+            if (data.summary) {
+                document.getElementById('summaryBody').textContent = data.summary;
+                summaryCard.style.display = 'block';
+            } else {
+                summaryCard.style.display = 'none';
+            }
+
+            // Key Themes
+            const themesCard = document.getElementById('themesCard');
+            const themesGrid = document.getElementById('themesGrid');
+            if (data.keyThemes && data.keyThemes.length) {
+                themesGrid.innerHTML = data.keyThemes.map((t, i) =>
+                    `<div class="theme-bubble" data-num="${i+1}"><div class="theme-word">${esc(t)}</div></div>`
+                ).join('');
+                themesCard.style.display = 'block';
+            } else {
+                themesCard.style.display = 'none';
+            }
+
+            // Image
+            const imageCard = document.getElementById('imageCard');
+            const imageSrc = normImageUrl(data._imageUrl);
+            if (imageSrc) {
+                document.getElementById('imageEl').src = imageSrc;
+                document.getElementById('imageEl').onerror = () => { imageCard.style.display = 'none'; };
+                imageCard.style.display = 'block';
+            } else {
+                imageCard.style.display = 'none';
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // RENDER SLIDES
+        // ────────────────────────────────────────────────
+        function renderSlides(ds, data) {
+            // Slide 1: Scripture
+            document.getElementById('s1Ref').textContent = data.scriptureRef || '말씀을 더하세요';
+            document.getElementById('s1Verse').textContent = data.scriptureText || '어드민에서 성경 본문을 입력해주세요.';
+            document.getElementById('s1Title').textContent = data.title || '이한규 365묵상';
+
+            // Slide 2: Summary
+            document.getElementById('s2Title').textContent = data.title || '오늘의 묵상';
+            document.getElementById('s2Text').textContent = data.summary || '묵상 요약을 어드민 → NotebookLM 탭에서 추가해주세요.';
+
+            // Slide 3: Themes
+            const s3Themes = document.getElementById('s3Themes');
+            if (data.keyThemes && data.keyThemes.length) {
+                s3Themes.innerHTML = data.keyThemes.map(t =>
+                    `<div class="s3-bubble">${esc(t)}</div>`
+                ).join('');
+            } else {
+                s3Themes.innerHTML = `<div class="s3-bubble" style="opacity:0.5">테마 없음</div>`;
+            }
+
+            // Slide 4: Audio
+            document.getElementById('s4Title').textContent = data.title || '오디오 묵상';
+            document.getElementById('s4Sub').textContent = data.scriptureRef || 'NotebookLM Audio Deep Dive';
+            document.getElementById('s4NbLink').href = data._nbUrl || '#';
+
+            const s4AudioEl = document.getElementById('s4AudioEl');
+            const audioSrc = normAudioUrl(data._audioUrl);
+            if (audioSrc) {
+                s4AudioEl.innerHTML = `<audio src="${audioSrc}" controls style="width:100%;accent-color:var(--gold)"></audio>`;
+            } else {
+                s4AudioEl.innerHTML = `<div style="font-family:var(--ff-ui);font-size:0.8rem;color:rgba(255,255,255,0.4);text-align:center;padding:0.5rem">오디오를 추가하면 여기에 표시됩니다</div>`;
+            }
+
+            // Waveform for slide 4
+            const s4Wave = document.getElementById('s4Waveform');
+            const wBars = Array.from({length:30}, (_,i) => {
+                const h = 6 + Math.sin(i*0.9)*7 + Math.random()*12;
+                return `<span style="height:${Math.max(6,h)}px;animation-delay:${(i*0.05).toFixed(2)}s"></span>`;
+            }).join('');
+            s4Wave.innerHTML = wBars;
+
+            // Rebuild dots
+            const dots = document.getElementById('slideDots');
+            dots.innerHTML = Array.from({length:totalSlides}, (_,i) =>
+                `<div class="slide-dot ${i===0?'active':''}" onclick="goToSlide(${i})"></div>`
+            ).join('');
+
+            document.getElementById('slideTotal').textContent = totalSlides;
+        }
+
+        // ────────────────────────────────────────────────
+        // STATS
+        // ────────────────────────────────────────────────
+        async function loadStats(currentDs) {
+            try {
+                const [y, m] = currentDs.split('-');
+                const daysInMonth = new Date(parseInt(y), parseInt(m), 0).getDate();
+                let total = 0;
+                let thisMonth = 0;
+                let streak = 0;
+
+                // Check this month
+                const monthPromises = [];
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const ds = `${y}-${m}-${pad(d)}`;
+                    monthPromises.push(getDoc(doc(db,'contents',ds)));
+                }
+
+                const snaps = await Promise.all(monthPromises);
+                snaps.forEach(s => {
+                    if (s.exists() && (s.data().items?.length || s.data().scriptureRef)) {
+                        thisMonth++;
+                        total++;
+                    }
+                });
+
+                // Streak: count backwards from current date
+                let checkDate = new Date(currentDs);
+                let streakCount = 0;
+                for (let i = 0; i < 30; i++) {
+                    const ds = `${checkDate.getFullYear()}-${pad(checkDate.getMonth()+1)}-${pad(checkDate.getDate())}`;
+                    const s = await getDoc(doc(db,'contents',ds));
+                    if (s.exists() && (s.data().items?.length || s.data().scriptureRef)) {
+                        streakCount++;
+                        checkDate.setDate(checkDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+
+                document.getElementById('statTotal').textContent = total;
+                document.getElementById('statMonth').textContent = thisMonth;
+                document.getElementById('statStreak').textContent = streakCount;
+            } catch(e) {
+                console.warn('Stats load failed', e);
+            }
+        }
+
+        // ────────────────────────────────────────────────
+        // HISTORY
+        // ────────────────────────────────────────────────
+        async function loadHistory(currentDs) {
+            const scroll = document.getElementById('historyScroll');
+            scroll.innerHTML = '<div style="font-family:var(--ff-ui);font-size:0.78rem;color:var(--muted);padding:0.5rem">불러오는 중...</div>';
+
+            const [y, m] = currentDs.split('-');
+            const daysInMonth = new Date(parseInt(y), parseInt(m), 0).getDate();
+            const items = [];
+
+            const promises = [];
+            for (let d = daysInMonth; d >= 1; d--) {
+                const ds = `${y}-${m}-${pad(d)}`;
+                promises.push(getDoc(doc(db,'contents',ds)).then(s => {
+                    if (s.exists() && (s.data().items?.length || s.data().scriptureRef)) {
+                        items.push({ ds, data: s.data() });
+                    }
+                }));
+            }
+
+            await Promise.all(promises);
+            items.sort((a,b) => b.ds.localeCompare(a.ds));
+            historyData = items;
+
+            if (!items.length) {
+                scroll.innerHTML = '<div style="font-family:var(--ff-ui);font-size:0.78rem;color:var(--muted);padding:0.5rem">이 달의 묵상 기록이 없습니다</div>';
+                return;
+            }
+
+            scroll.innerHTML = '';
+            items.forEach(({ ds, data }) => {
+                const [, , d] = ds.split('-');
+                const DOW = ['일','월','화','수','목','금','토'];
+                const dow = DOW[new Date(ds).getDay()];
+                const isActive = ds === currentDs;
+
+                const el = document.createElement('div');
+                el.className = `history-item ${isActive?'active':''}`;
+                el.innerHTML = `
+                    <div class="hist-date">${parseInt(d)}일 (${dow})</div>
+                    <div class="hist-title">${esc(data.title || '묵상')}</div>
+                    <div class="hist-ref">${esc(data.scriptureRef || '')}</div>`;
+                el.onclick = () => { currentDate = ds; loadMeditationData(ds); };
+                scroll.appendChild(el);
+            });
+        }
+
+        // ────────────────────────────────────────────────
+        // DATE NAVIGATION
+        // ────────────────────────────────────────────────
+        window.changeDay = function(delta) {
+            const d = new Date(currentDate);
+            d.setDate(d.getDate() + delta);
+            currentDate = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+            history.replaceState({}, '', `?date=${currentDate}`);
+            loadMeditationData(currentDate);
+        };
+
+        // ────────────────────────────────────────────────
+        // SLIDE CONTROLS
+        // ────────────────────────────────────────────────
+        window.openSlides = function() {
+            document.getElementById('slideOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            goToSlide(0);
+        };
+
+        window.closeSlides = function() {
+            document.getElementById('slideOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        window.goToSlide = function(idx) {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((s, i) => {
+                s.classList.remove('active','prev');
+                if (i < idx) s.classList.add('prev');
+                else if (i === idx) s.classList.add('active');
+            });
+
+            document.querySelectorAll('.slide-dot').forEach((d,i) => {
+                d.classList.toggle('active', i === idx);
+            });
+
+            document.getElementById('slideNum').textContent = idx + 1;
+            document.getElementById('slidePrev').disabled = idx === 0;
+            document.getElementById('slideNext').disabled = idx === totalSlides - 1;
+
+            currentSlide = idx;
+        };
+
+        window.prevSlide = function() {
+            if (currentSlide > 0) goToSlide(currentSlide - 1);
+        };
+
+        window.nextSlide = function() {
+            if (currentSlide < totalSlides - 1) goToSlide(currentSlide + 1);
+        };
+
+        // Keyboard navigation for slides
+        document.addEventListener('keydown', e => {
+            if (!document.getElementById('slideOverlay').classList.contains('active')) return;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') window.nextSlide();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') window.prevSlide();
+            if (e.key === 'Escape') window.closeSlides();
+        });
+
+        // Touch swipe for slides
+        let touchStartX = 0;
+        document.getElementById('slidesContainer').addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        document.getElementById('slidesContainer').addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (Math.abs(dx) > 50) {
+                if (dx < 0) window.nextSlide();
+                else window.prevSlide();
+            }
+        }, { passive: true });
+
+        // Share
+        window.shareSlide = function() {
+            const url = window.location.href;
+            const text = currentData ? `📖 ${currentData.scriptureRef || ''}\n${currentData.title || '오늘의 묵상'}\n${url}` : url;
+            if (navigator.share) {
+                navigator.share({ title: '매일의 묵상', text, url }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('링크가 복사되었습니다!');
+                }).catch(() => { alert('공유: ' + url); });
+            }
+        };
+
+        // ────────────────────────────────────────────────
+        // INIT
+        // ────────────────────────────────────────────────
+        const params = new URLSearchParams(window.location.search);
+        const dateParam = params.get('date');
+        currentDate = dateParam || todayStr();
+
+        // Also try to load from local meditation.json for richer data
+        async function tryLoadLocalJson(ds) {
+            try {
+                const res = await fetch('./data/meditation.json');
+                if (!res.ok) return null;
+                const json = await res.json();
+                return json.meditations?.find(m => m.date === ds) || null;
+            } catch { return null; }
+        }
+
+        // Merge local JSON data into Firestore data
+        const localJson = await tryLoadLocalJson(currentDate);
+        if (localJson) {
+            console.log('Local JSON data found, will be merged with Firestore data');
+        }
+
+        loadMeditationData(currentDate);
+    </script>
+</body>
+</html>
