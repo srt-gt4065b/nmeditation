@@ -1580,7 +1580,7 @@
                 const ref = doc(db,'contents',ds);
                 const snap = await getDoc(ref);
                 const existing = snap.exists() ? snap.data() : {};
-                await setDoc(ref, { ...existing, ...docData });
+                await setDoc(ref, { ...existing, ...docData }, { merge: true });
                 cache[ds] = { ...existing, ...docData };
 
                 window.toast('✅ NotebookLM 콘텐츠가 저장되었습니다!');
@@ -1639,7 +1639,7 @@
                 const arr = snap.exists() ? (snap.data().items || []) : [];
                 arr.push({ type: tp, title: ti, url });
 
-                await setDoc(ref, { ...(snap.data()||{}), items: arr });
+                await setDoc(ref, { ...(snap.data()||{}), items: arr }, { merge: true });
                 cache[ds] = { ...(snap.data()||{}), items: arr };
 
                 document.getElementById('aUrl').value = '';
@@ -1664,7 +1664,7 @@
                 const arr = snap.data().items || [];
                 arr.splice(idx, 1);
 
-                await setDoc(ref, { ...snap.data(), items: arr });
+                await setDoc(ref, { ...snap.data(), items: arr }, { merge: true });
                 cache[ds] = { ...snap.data(), items: arr };
 
                 window.toast('삭제되었습니다');
