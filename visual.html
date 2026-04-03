@@ -1136,13 +1136,49 @@
             return m ? m[1] : null;
         }
 
+        // Google Drive 오디오는 CORS 제한으로 <audio>에서 재생 불가
+        // → driveId 반환 / 직접 URL은 그대로 반환
         function normAudioUrl(url) {
             if (!url) return null;
+            return url; // 원본 URL 유지, 렌더링 시 분기
+        }
+
+        function getDriveAudioId(url) {
+            if (!url) return null;
             if (url.includes('drive.google.com')) {
-                const id = extractDriveId(url);
-                return id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+                return extractDriveId(url);
             }
-            return url;
+            return null;
+        }
+
+        function buildAudioPlayer(url, title, isDark = false) {
+            if (!url) return null;
+            const driveId = getDriveAudioId(url);
+            if (driveId) {
+                // Google Drive: iframe 방식 (유일하게 CORS 없이 재생 가능)
+                return `
+                    <div class="audio-title" style="${isDark ? 'color:rgba(255,255,255,0.85)' : ''}">${esc(title || '오늘의 묵상 오디오')}</div>
+                    <iframe
+                        src="https://drive.google.com/file/d/${driveId}/preview"
+                        style="width:100%;height:80px;border:none;border-radius:8px;margin-top:0.4rem"
+                        allow="autoplay"
+                        loading="lazy">
+                    </iframe>
+                    <a href="https://drive.google.com/file/d/${driveId}/view" target="_blank" rel="noopener"
+                        style="display:inline-block;margin-top:0.4rem;font-family:var(--ff-ui);font-size:0.72rem;color:${isDark ? 'rgba(255,255,255,0.45)' : 'var(--muted)'};text-decoration:none;">
+                        ↗ Google Drive에서 열기
+                    </a>`;
+            } else {
+                // 직접 URL (mp3 등): <audio> 태그 사용
+                return `
+                    <div class="audio-title" style="${isDark ? 'color:rgba(255,255,255,0.85)' : ''}">${esc(title || '오늘의 묵상 오디오')}</div>
+                    <audio src="${url}" controls style="width:100%;accent-color:var(--gold);margin-top:0.4rem"
+                        ${!isDark ? `id="mainAudio"
+                        onplay="document.getElementById('mainWaveform')?.classList.remove('paused')"
+                        onpause="document.getElementById('mainWaveform')?.classList.add('paused')"
+                        onended="document.getElementById('mainWaveform')?.classList.add('paused')"` : ''}>
+                    </audio>`;
+            }
         }
 
         function normImageUrl(url) {
@@ -1220,22 +1256,17 @@
 
             // Audio
             const audioWrap = document.getElementById('audioPlayerWrap');
-            const audioSrc = normAudioUrl(data._audioUrl);
-            if (audioSrc) {
-                // Build waveform bars
+            const audioPlayer = buildAudioPlayer(data._audioUrl, data.title, false);
+            if (audioPlayer) {
+                // Waveform bars (Drive iframe일 때는 시각 장식용으로만 사용)
+                const isDrive = getDriveAudioId(data._audioUrl);
                 const bars = Array.from({length:36}, (_,i) => {
                     const h = 8 + Math.sin(i*0.8)*8 + Math.random()*16;
                     return `<span style="height:${Math.max(8,h)}px;animation-delay:${(i*0.04).toFixed(2)}s"></span>`;
                 }).join('');
-
                 audioWrap.innerHTML = `
-                    <div class="audio-title">${esc(data.title || '오늘의 묵상 오디오')}</div>
-                    <div class="waveform-bar" id="mainWaveform">${bars}</div>
-                    <audio class="custom-audio" id="mainAudio" src="${audioSrc}" controls
-                        onplay="document.getElementById('mainWaveform').classList.remove('paused')"
-                        onpause="document.getElementById('mainWaveform').classList.add('paused')"
-                        onended="document.getElementById('mainWaveform').classList.add('paused')">
-                    </audio>`;
+                    ${!isDrive ? `<div class="waveform-bar paused" id="mainWaveform">${bars}</div>` : ''}
+                    ${audioPlayer}`;
             } else if (data._nbUrl) {
                 audioWrap.innerHTML = `
                     <div class="no-audio">🧠 NotebookLM에서 Audio Overview를 확인하세요</div>
@@ -1306,9 +1337,9 @@
             document.getElementById('s4NbLink').href = data._nbUrl || '#';
 
             const s4AudioEl = document.getElementById('s4AudioEl');
-            const audioSrc = normAudioUrl(data._audioUrl);
-            if (audioSrc) {
-                s4AudioEl.innerHTML = `<audio src="${audioSrc}" controls style="width:100%;accent-color:var(--gold)"></audio>`;
+            const s4Player = buildAudioPlayer(data._audioUrl, data.title, true);
+            if (s4Player) {
+                s4AudioEl.innerHTML = s4Player;
             } else {
                 s4AudioEl.innerHTML = `<div style="font-family:var(--ff-ui);font-size:0.8rem;color:rgba(255,255,255,0.4);text-align:center;padding:0.5rem">오디오를 추가하면 여기에 표시됩니다</div>`;
             }
