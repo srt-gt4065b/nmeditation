@@ -1075,6 +1075,7 @@
         let curDate = '';
         let cache = {};
         let unsubCmt = null;
+        let lastKnownUpdate = 0;
 
         // ════════════════════════════════════════════════
         // CALENDAR
@@ -1581,6 +1582,7 @@
                 const snap = await getDoc(ref);
                 const existing = snap.exists() ? snap.data() : {};
                 await setDoc(ref, { ...existing, ...docData }, { merge: true });
+                await setDoc(doc(db, 'meta', 'lastModified'), { at: serverTimestamp() });
                 cache[ds] = { ...existing, ...docData };
 
                 window.toast('✅ NotebookLM 콘텐츠가 저장되었습니다!');
@@ -1640,6 +1642,7 @@
                 arr.push({ type: tp, title: ti, url });
 
                 await setDoc(ref, { ...(snap.data()||{}), items: arr }, { merge: true });
+                await setDoc(doc(db, 'meta', 'lastModified'), { at: serverTimestamp() });
                 cache[ds] = { ...(snap.data()||{}), items: arr };
 
                 document.getElementById('aUrl').value = '';
@@ -1665,6 +1668,7 @@
                 arr.splice(idx, 1);
 
                 await setDoc(ref, { ...snap.data(), items: arr }, { merge: true });
+                await setDoc(doc(db, 'meta', 'lastModified'), { at: serverTimestamp() });
                 cache[ds] = { ...snap.data(), items: arr };
 
                 window.toast('삭제되었습니다');
@@ -1739,6 +1743,29 @@
             cache = {};
             window.loadMonth();
         };
+
+        // ════════════════════════════════════════════════════
+        // 실시간 동기화: meta/lastModified 리스너 + 탭 포커스 갱신
+        // ════════════════════════════════════════════════════
+        onSnapshot(doc(db, 'meta', 'lastModified'), (snap) => {
+            if (!snap.exists()) return;
+            const ts = snap.data().at?.seconds || 0;
+            if (lastKnownUpdate === 0) {
+                lastKnownUpdate = ts;
+                return;
+            }
+            if (ts > lastKnownUpdate) {
+                lastKnownUpdate = ts;
+                cache = {};
+                window.loadMonth();
+                if (curDate) window.loadDayContent(curDate);
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            cache = {};
+            window.loadMonth();
+        });
 
         // ── Init ──
         window.loadMonth();
