@@ -1272,7 +1272,8 @@
                 }
 
                 el.innerHTML = '';
-                items.forEach((item, i) => el.appendChild(window.buildContentEl(item, i)));
+                // NotebookLM 바로가기 섹션은 화면에서 숨김 (데이터는 유지)
+                items.forEach((item, i) => { if (item.type !== 'notebookLM') el.appendChild(window.buildContentEl(item, i)); });
             } catch {
                 el.innerHTML = '<div class="no-content">⚠️ 불러오기 실패</div>';
             }
@@ -1329,12 +1330,14 @@
                     view.innerHTML = `<video src="${url}" controls playsinline></video>`;
                 }
             } else if (item.type === 'audio') {
-                let src = url;
+                // Google Drive 오디오는 <audio>로 재생되지 않아 Drive 미리보기 플레이어(iframe)로 표시
                 if (url.includes('drive.google.com')) {
                     const id = extractDriveId(url);
-                    src = id ? `https://drive.google.com/uc?export=download&id=${id}` : url;
+                    const src = id ? `https://drive.google.com/file/d/${id}/preview` : url;
+                    view.innerHTML = `<iframe src="${src}" allow="autoplay" style="width:100%;height:120px;border:0;border-radius:8px;display:block;"></iframe>`;
+                } else {
+                    view.innerHTML = `<div class="audio-wrap">🎵 <audio src="${url}" controls></audio></div>`;
                 }
-                view.innerHTML = `<div class="audio-wrap">🎵 <audio src="${src}" controls></audio></div>`;
             } else if (item.type === 'notebookLM') {
                 view.innerHTML = `<div style="padding:1.2rem; text-align:center;">
                     <a href="${url}" target="_blank" rel="noopener" style="font-family:var(--ff-ui);font-weight:600;font-size:0.9rem;color:var(--gold);text-decoration:none;padding:0.8rem 1.4rem;border:1px solid var(--border);border-radius:8px;display:inline-block;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(184,120,58,0.07)';" onmouseout="this.style.borderColor='var(--border)';this.style.background='transparent';">
