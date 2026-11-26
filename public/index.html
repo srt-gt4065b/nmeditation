@@ -373,6 +373,48 @@
             font-style: italic;
         }
 
+        /* ── Multilingual (한국어 / 日本語 / 발음) ── */
+        .ml-ko { white-space: pre-line; }
+        .ml-ja {
+            margin-top: 0.6rem;
+            padding-top: 0.55rem;
+            border-top: 1px dashed var(--border);
+            font-style: normal;
+            white-space: pre-line;
+        }
+        .ml-pron {
+            margin-top: 0.45rem;
+            font-style: normal;
+            font-size: 0.85em;
+            color: var(--muted);
+            white-space: pre-line;
+        }
+        .ml-label {
+            display: inline-block;
+            font-family: var(--ff-ui);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-right: 0.35rem;
+        }
+        .tts-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.45rem;
+            padding: 0.35rem 0.8rem;
+            border: 1px solid var(--gold);
+            border-radius: 999px;
+            background: transparent;
+            color: var(--gold);
+            font-family: var(--ff-ui);
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-style: normal;
+            cursor: pointer;
+        }
+        .tts-btn:hover, .tts-btn.playing { background: var(--gold); color: #fff; }
+
         /* ── Summary Block in Modal ── */
         .summary-block {
             background: var(--parchment);
@@ -1233,7 +1275,7 @@
                     sa.innerHTML = `
                         <div class="scripture-block">
                             <div class="scripture-ref">📖 ${esc(data.scriptureRef || '')}</div>
-                            ${data.scriptureText ? `<div class="scripture-text">"${esc(data.scriptureText)}"</div>` : ''}
+                            ${data.scriptureText ? `<div class="scripture-text">${renderMultilang(data.scriptureText, true)}</div>` : ''}
                         </div>`;
                 }
 
@@ -1242,7 +1284,7 @@
                     sumA.innerHTML = `
                         <div class="summary-block">
                             <div class="summary-label">오늘의 묵상 요약</div>
-                            <div class="summary-text">${esc(data.summary)}</div>
+                            <div class="summary-text">${renderMultilang(data.summary, false)}</div>
                         </div>`;
                 }
 
@@ -1700,6 +1742,46 @@
             if (!s) return '';
             return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
+
+        // 한국어 【日本語】 일본어 【발음】 한글발음 → 구역별로 나누어 표시 + 일본어 음성 듣기 버튼
+        function renderMultilang(text, quote) {
+            const ja = text.indexOf('【日本語】');
+            if (ja < 0) {
+                const t = text.trim();
+                return `<div class="ml-ko">${quote ? '"' + esc(t) + '"' : esc(t)}</div>`;
+            }
+            const ko = text.slice(0, ja).trim();
+            let rest = text.slice(ja + '【日本語】'.length);
+            let pron = '';
+            const p = rest.indexOf('【발음】');
+            if (p >= 0) { pron = rest.slice(p + '【발음】'.length).trim(); rest = rest.slice(0, p); }
+            const jaText = rest.trim();
+            const btn = `<button type="button" class="tts-btn" data-ja="${esc(jaText)}" onclick="speakJa(this)">🔊 일본어로 듣기</button>`;
+            return `<div class="ml-ko">${quote ? '"' + esc(ko) + '"' : esc(ko)}</div>`
+                + `<div class="ml-ja"><span class="ml-label">日本語</span>${esc(jaText)}</div>`
+                + (pron ? `<div class="ml-pron"><span class="ml-label">발음</span>${esc(pron)}</div>` : '')
+                + `<div>${btn}</div>`;
+        }
+
+        // 브라우저 내장 음성합성(TTS)으로 일본어 읽기
+        window.speakJa = function(btn) {
+            const synth = window.speechSynthesis;
+            if (!synth) { alert('이 브라우저는 음성 읽기를 지원하지 않습니다.'); return; }
+            const wasPlaying = btn.classList.contains('playing');
+            synth.cancel();
+            document.querySelectorAll('.tts-btn.playing').forEach(b => { b.classList.remove('playing'); b.textContent = '🔊 일본어로 듣기'; });
+            if (wasPlaying) return;
+            const u = new SpeechSynthesisUtterance(btn.dataset.ja);
+            u.lang = 'ja-JP';
+            u.rate = 0.9;
+            const v = synth.getVoices().find(v => v.lang && v.lang.replace('_','-').startsWith('ja'));
+            if (v) u.voice = v;
+            const reset = () => { btn.classList.remove('playing'); btn.textContent = '🔊 일본어로 듣기'; };
+            u.onend = reset; u.onerror = reset;
+            btn.classList.add('playing');
+            btn.textContent = '⏹ 멈추기';
+            synth.speak(u);
+        };
 
         window.todayStr = function() {
             const d = new Date();
